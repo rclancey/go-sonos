@@ -554,8 +554,8 @@ func (this *ssdpDefaultManager) ssdpHandleResponse(raw *ssdpRawMessage) *ssdpRes
 				msg.upnp_version = m[5]
 				msg.product = m[6]
 				msg.productVersion = m[8]
-			} else {
-				log.Printf("Invalid server description `%s'", value)
+			//} else {
+			//	log.Printf("Invalid server description `%s'", value)
 			}
 		case "Opt":
 			msg.opt = value

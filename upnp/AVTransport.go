@@ -41,12 +41,14 @@ var (
 )
 
 type avTransport_Value_XML struct {
-	XMLName xml.Name
+	XMLName xml.Name `json:"-"`
 	Val     string `xml:"val,attr"`
 }
 
 type avTransport_InstanceID_XML struct {
-	avTransport_Value_XML
+	//avTransport_Value_XML
+	XMLName xml.Name `json:"-"`
+	Val     string `xml:"val,attr"`
 	TransportState,
 	CurrentPlayMode,
 	CurrentCrossfadeMode,

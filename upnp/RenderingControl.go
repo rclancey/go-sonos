@@ -40,13 +40,16 @@ var (
 )
 
 type renderingControl_Value_XML struct {
-	XMLName xml.Name
+	XMLName xml.Name `json:"-"`
 	Channel string `xml:"channel,attr"`
 	Val     string `xml:"val,attr"`
 }
 
 type renderingControl_InstanceID_XML struct {
-	renderingControl_Value_XML
+	XMLName xml.Name
+	Channel string `xml:"channel,attr"`
+	Val     string `xml:"val,attr"`
+	//renderingControl_Value_XML
 	Volume,
 	Mute,
 	Bass,

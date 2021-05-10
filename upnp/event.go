@@ -134,6 +134,15 @@ func (this *upnpDefaultReactor) Init(ifiname, port string) {
 	if err != nil {
 		panic(err)
 	}
+	ipv4s := []net.Addr{}
+	for _, addr := range addrs {
+		if addr.(*net.IPNet).IP.To4() != nil {
+			ipv4s = append(ipv4s, addr)
+		}
+	}
+	if len(ipv4s) > 0 {
+		addrs = ipv4s
+	}
 
 	this.initialized = true
 	this.port = port
@@ -188,10 +197,15 @@ func (this *upnpDefaultReactor) subscribeImpl(rec *upnpEventRecord) (err error) 
 	req.Header.Add("TIMEOUT", "900")
 	var resp *http.Response
 	if resp, err = client.Do(req); nil == err {
+		defer resp.Body.Close()
 		var sid string
 		if sid, err = this.handleAck(rec.svc, resp); nil == err {
 			this.eventMap[sid] = rec
+		} else {
+			log.Println("error handling subscription ack:", err)
 		}
+	} else {
+		log.Println("error subscribing:", req.URL, req.Header, err)
 	}
 	return
 }
@@ -265,6 +279,7 @@ func (this *upnpDefaultReactor) handle(request *http.Request) {
 		sid_key := http.CanonicalHeaderKey("sid")
 		var sid string
 		if sid_list, has := request.Header[sid_key]; has {
+			//log.Println("event xml:", string(body))
 			sid = sid_list[0]
 			doc := &upnpEvent_XML{}
 			xml.Unmarshal(body, doc)
@@ -281,8 +296,8 @@ func (this *upnpDefaultReactor) ServeHTTP(writer http.ResponseWriter, request *h
 func MakeReactor() Reactor {
 	reactor := &upnpDefaultReactor{}
 	reactor.eventMap = make(upnpEventMap)
-	reactor.subscrChan = make(chan *upnpEventRecord)
-	reactor.unpackChan = make(chan *upnpEvent)
-	reactor.eventChan = make(chan Event)
+	reactor.subscrChan = make(chan *upnpEventRecord, 1024)
+	reactor.unpackChan = make(chan *upnpEvent, 1024)
+	reactor.eventChan = make(chan Event, 1024)
 	return reactor
 }
