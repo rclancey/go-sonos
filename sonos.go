@@ -34,8 +34,8 @@
 package sonos
 
 import (
-	"github.com/ianr0bkny/go-sonos/ssdp"
-	"github.com/ianr0bkny/go-sonos/upnp"
+	"github.com/rclancey/go-sonos/ssdp"
+	"github.com/rclancey/go-sonos/upnp"
 	_ "log"
 )
 

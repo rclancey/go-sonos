@@ -32,7 +32,7 @@ package reciva
 
 import (
 	"encoding/xml"
-	"github.com/ianr0bkny/go-sonos/upnp"
+	"github.com/rclancey/go-sonos/upnp"
 )
 
 type RecivaRadio struct {

@@ -29,7 +29,7 @@
 # 
 
      GO = go
-PACKAGE = github.com/ianr0bkny/go-sonos
+PACKAGE = github.com/rclancey/go-sonos
    GOOS = $(shell go env GOOS)
  GOARCH = $(shell go env GOARCH)
 

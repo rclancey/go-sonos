@@ -55,7 +55,7 @@ package config
 
 import (
 	"encoding/json"
-	"github.com/ianr0bkny/go-sonos/ssdp"
+	"github.com/rclancey/go-sonos/ssdp"
 	"io"
 	"log"
 	"os"

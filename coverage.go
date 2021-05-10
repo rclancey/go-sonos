@@ -32,7 +32,7 @@ package sonos
 
 import (
 	"fmt"
-	"github.com/ianr0bkny/go-sonos/upnp"
+	"github.com/rclancey/go-sonos/upnp"
 	"log"
 	"reflect"
 )

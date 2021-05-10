@@ -31,11 +31,11 @@
 package sonos_test
 
 import (
-	"github.com/ianr0bkny/go-sonos"
-	"github.com/ianr0bkny/go-sonos/config"
-	"github.com/ianr0bkny/go-sonos/didl"
-	"github.com/ianr0bkny/go-sonos/ssdp"
-	"github.com/ianr0bkny/go-sonos/upnp"
+	"github.com/rclancey/go-sonos"
+	"github.com/rclancey/go-sonos/config"
+	"github.com/rclancey/go-sonos/didl"
+	"github.com/rclancey/go-sonos/ssdp"
+	"github.com/rclancey/go-sonos/upnp"
 	"log"
 	"strings"
 	"testing"

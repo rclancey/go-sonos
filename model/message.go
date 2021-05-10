@@ -32,8 +32,8 @@ package model
 
 import (
 	"encoding/xml"
-	"github.com/ianr0bkny/go-sonos/didl"
-	"github.com/ianr0bkny/go-sonos/upnp"
+	"github.com/rclancey/go-sonos/didl"
+	"github.com/rclancey/go-sonos/upnp"
 	"strings"
 	"time"
 )

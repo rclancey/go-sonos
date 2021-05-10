@@ -34,7 +34,7 @@
 package model
 
 import (
-	"github.com/ianr0bkny/go-sonos/didl"
+	"github.com/rclancey/go-sonos/didl"
 	_ "log"
 )
 
