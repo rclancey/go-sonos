@@ -287,13 +287,17 @@ func (this *Service) Describe() (err error) {
 		return
 	}
 	job := upnpMakeDescribeServiceJob(this)
+	uri := job.svc.scpdURL.String()
 	go job.Describe()
 	timeout := time.NewTimer(time.Duration(3) * time.Second)
 	select {
 	case <-job.result:
 		this.described = true
+		log.Printf("%s loaded successfully", string(uri))
 	case err = <-job.err_result:
+		log.Printf("%s returned an error: %s", string(uri), err)
 	case <-timeout.C:
+		log.Printf("%s timed out", string(uri))
 	}
 	return
 }
