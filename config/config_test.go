@@ -31,8 +31,8 @@
 package config_test
 
 import (
-	"github.com/rclancey/go-sonos"
-	"github.com/rclancey/go-sonos/config"
+	"github.com/esoutham1/go-sonos"
+	"github.com/esoutham1/go-sonos/config"
 	"log"
 	"os"
 	"testing"
@@ -54,7 +54,7 @@ func TestConfig(t *testing.T) {
 
 	c := config.MakeConfig(configdir)
 	c.Init()
-	c.AddBookmark(uuid, sonos.SONOS, location, uuid)
+	c.AddBookmark(uuid, sonos.SONOS, "0.3.0", location, uuid)
 	c.AddAlias(uuid, alias)
 	c.Save()
 	c = nil

@@ -31,8 +31,8 @@
 package sonos
 
 import (
-	"github.com/rclancey/go-sonos/model"
-	"github.com/rclancey/go-sonos/upnp"
+	"github.com/esoutham1/go-sonos/model"
+	"github.com/esoutham1/go-sonos/upnp"
 	"log"
 	"strings"
 )

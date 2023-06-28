@@ -34,10 +34,12 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -162,11 +164,36 @@ func (this *upnpDefaultReactor) Init(ifiname, port string) {
 }
 
 func (this *upnpDefaultReactor) handleAck(svc *Service, resp *http.Response) (sid string, err error) {
-	sid_key := http.CanonicalHeaderKey("sid")
-	if sid_list, has := resp.Header[sid_key]; has {
-		sid = sid_list[0]
+	if resp.Status == "200 OK" {
+		sid_key := http.CanonicalHeaderKey("sid")
+		if sid_list, has := resp.Header[sid_key]; has {
+			sid = sid_list[0]
+			svc.ssid = sid // Save sid in the service for re-subscribe
+
+			// USE Timeout value returned to schedule reSubscribe
+			sid_timeout := http.CanonicalHeaderKey("TIMEOUT")
+			if timeout_list, has := resp.Header[sid_timeout]; has {
+				timeoutStr := timeout_list[0]
+				if strings.HasPrefix(timeoutStr, "Second-") {
+					timeoutStr = strings.TrimPrefix(timeoutStr, "Second-")
+				}
+				var timeoutVal uint64
+				timeoutVal, err = strconv.ParseUint(timeoutStr, 10, 16)
+				if err == nil {
+					svc.timeout = time.Duration(timeoutVal) * time.Second
+					//DBG: log.Printf("Sub_Timeout:%d Sec (%s)\n", timeoutVal, svc.timeout.String())
+				} else {
+					err = errors.New("subscription ack timeout failed to parse")
+				}
+			} else {
+				err = errors.New("subscription ack missing timeout")
+			}
+		} else {
+			err = errors.New("subscription ack missing sid. ")
+		}
 	} else {
-		err = errors.New("Subscription ack missing sid")
+		errStr := fmt.Sprintln("subscription ack failed: ", resp.Status)
+		err = errors.New(errStr)
 	}
 	return
 }
@@ -190,22 +217,89 @@ func (this *upnpDefaultReactor) subscribeImpl(rec *upnpEventRecord) (err error) 
 	if nil != err {
 		return
 	}
-	req.Header.Add("CALLBACK", fmt.Sprintf("<http://%s/eventSub>", this.localAddr))
 	req.Header.Add("HOST", rec.svc.eventSubURL.Host)
 	req.Header.Add("USER-AGENT", "unix/5.1 UPnP/1.1 sonos.go/1.0")
-	req.Header.Add("NT", "upnp:event")
-	req.Header.Add("TIMEOUT", "900")
+	req.Header.Add("CALLBACK", fmt.Sprintf("<http://%s/eventSub>", this.localAddr))
+	req.Header.Add("NT", "upnp:event") //Required. Field value contains Notification Type. shall be upnp:event.
+	// (No SID header field is used to subscribe.)
+	req.Header.Add("TIMEOUT", "Second-1800") //Recommended. Field value contains requested duration until subscription expires. Consists of the keyword Second- followed (without an intervening space)
 	var resp *http.Response
 	if resp, err = client.Do(req); nil == err {
 		defer resp.Body.Close()
 		var sid string
 		if sid, err = this.handleAck(rec.svc, resp); nil == err {
-			this.eventMap[sid] = rec
+			this.eventMap[sid] = rec // Save this subscription to the map
 		} else {
-			log.Println("error handling subscription ack:", err)
+			log.Println("error on subscription ack:", err)
 		}
 	} else {
 		log.Println("error subscribing:", req.URL, req.Header, err)
+	}
+	return
+}
+
+func (this *upnpDefaultReactor) reSubscribeImpl(rec *upnpEventRecord) (err error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("SUBSCRIBE", rec.svc.eventSubURL.String(), nil)
+	if nil != err {
+		return
+	}
+	req.Header.Add("HOST", rec.svc.eventSubURL.Host) // Required. Field value contains domain name or IP address and optional port components of fully qualified event subscription URL
+	req.Header.Add("USER-AGENT", "unix/5.1 UPnP/1.1 sonos.go/1.0")
+	// (No CALLBACK header field is used to renew an event subscription.)
+	// (No NT header field is used to renew an event subscription.)
+	req.Header.Add("SID", rec.svc.ssid)      // Required. Field value contains Subscription Identifier. Shall be the subscription identifier assigned by publisher in response to subscription request. Shall be universally unique. Shall begin with uuid:
+	req.Header.Add("TIMEOUT", "Second-1800") // Recommended. Field value contains requested duration until subscription expires. Consists of the keyword Second- followed (without an intervening space)
+
+	var resp *http.Response
+	if resp, err = client.Do(req); nil == err {
+		defer resp.Body.Close()
+		var sid string
+		if sid, err = this.handleAck(rec.svc, resp); nil == err {
+			this.eventMap[sid] = rec // Update the map
+		} else {
+			log.Println("error on re-subscribe ack:", err)
+			//Clear eventMap info to try full subscribe
+			rec.svc.ssid = sid  // if err, sid will be empty (try FullSubscribe later)
+			rec.svc.timeout = 0 // use default re-subscribe timeout
+		}
+	}
+
+	//IF NO Re-Subscription
+	if rec.svc.ssid == "" {
+		log.Println("error reSubscribing:", req.URL, req.Header, err)
+
+		// TRY NEW SUBSCRIPTION to recover
+		err = this.subscribeImpl(rec)
+		if err != nil {
+			log.Println("error during Subscribe recovery attempt!", err)
+			rec.svc.ssid = ""   // Clear the sid so we can try again later
+			rec.svc.timeout = 0 // use default re-subscribe timeout
+		}
+	}
+	return
+}
+
+func (this *upnpDefaultReactor) unSubscribeImpl(rec *upnpEventRecord) (err error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("UNSUBSCRIBE", rec.svc.eventSubURL.String(), nil)
+	if nil != err {
+		return
+	}
+	req.Header.Add("HOST", rec.svc.eventSubURL.Host)
+	req.Header.Add("USER-AGENT", "unix/5.1 UPnP/1.1 sonos.go/1.0")
+	// (No CALLBACK header field is used to cancel an event subscription.)
+	// (No NT header field is used to renew an event subscription.)
+	req.Header.Add("SID", rec.svc.ssid) // Required. Field value contains Subscription Identifier. Shall be the subscription identifier assigned by publisher in response to subscription request. Shall be universally unique. Shall begin with uuid:
+	// (No TIMEOUT header field is used to cancel an event subscription.)
+
+	var resp *http.Response
+	if resp, err = client.Do(req); nil == err {
+		defer resp.Body.Close()
+		sid := rec.svc.ssid
+		this.eventMap[sid] = rec
+	} else {
+		log.Println("error unSubscribing:", req.URL, req.Header, err)
 	}
 	return
 }
@@ -224,10 +318,32 @@ func (this *upnpDefaultReactor) maybePostEvent(event *upnpEvent) {
 }
 
 func (this *upnpDefaultReactor) run() {
+	var err error
 	for {
 		select {
 		case subscr := <-this.subscrChan:
-			this.subscribeImpl(subscr)
+			if subscr.svc.ssid == "" { // New-Subscription
+				err = this.subscribeImpl(subscr)
+				//DBG: log.Printf("SUBSCRIBE %s = %s : %d\n", subscr.svc.serviceId, subscr.svc.ssid, subscr.svc.timeout/time.Second)
+			} else { // Re-Subscription
+				//DBG: log.Printf("RESUBSCRIBE %s : %d\n", subscr.svc.ssid, subscr.svc.timeout/time.Second)
+				err = this.reSubscribeImpl(subscr)
+			}
+			if err != nil {
+				log.Println("error during Subscribe:", err)
+			}
+
+			// Schedule next re/Subscribe attempt
+			go func() {
+				resubscribeTime := subscr.svc.timeout / 2 // resubscribe in half the timeout time
+				if 0 == subscr.svc.timeout {
+					log.Printf("warning: Subscription timeout=0 Use 10min instead\n")
+					resubscribeTime = 10 * time.Minute
+				}
+				resTimer := time.NewTimer(resubscribeTime)
+				<-resTimer.C              // waits here for timer to expire
+				this.subscrChan <- subscr // send subscription to re-subscribe
+			}()
 		case event := <-this.unpackChan:
 			this.maybePostEvent(event)
 		}
@@ -273,13 +389,13 @@ func (this *upnpDefaultReactor) unpack(sid string, doc *upnpEvent_XML) {
 
 func (this *upnpDefaultReactor) handle(request *http.Request) {
 	defer request.Body.Close()
-	if body, err := ioutil.ReadAll(request.Body); nil != err {
+	if body, err := io.ReadAll(request.Body); nil != err {
 		panic(err)
 	} else {
 		sid_key := http.CanonicalHeaderKey("sid")
 		var sid string
 		if sid_list, has := request.Header[sid_key]; has {
-			//log.Println("event xml:", string(body))
+			//DBG: log.Println("event xml:", string(body))
 			sid = sid_list[0]
 			doc := &upnpEvent_XML{}
 			xml.Unmarshal(body, doc)

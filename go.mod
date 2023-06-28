@@ -1,3 +1,3 @@
-module github.com/rclancey/go-sonos
+module github.com/esoutham1/go-sonos
 
-go 1.13
+go 1.20

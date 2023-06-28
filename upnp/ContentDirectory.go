@@ -32,7 +32,7 @@ package upnp
 
 import (
 	"encoding/xml"
-	"github.com/rclancey/go-sonos/didl"
+	"github.com/esoutham1/go-sonos/didl"
 	_ "log"
 )
 
@@ -310,11 +310,9 @@ func (this *ContentDirectory) UpdateObject(objectId, currentTagValue, newTagValu
 	return
 }
 
-//
 // Remove the directory object given by @objectId (e.g. "SQ:11", to
 // remove a saved queue). A 701 error is returned if an invalid @objectId
 // is specified.
-//
 func (this *ContentDirectory) DestroyObject(objectId string) error {
 	type Response struct {
 		XMLName xml.Name

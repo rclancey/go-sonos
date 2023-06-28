@@ -28,14 +28,12 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-//
 // A go-language implementation of the Sonos UPnP API.
-//
 package sonos
 
 import (
-	"github.com/rclancey/go-sonos/ssdp"
-	"github.com/rclancey/go-sonos/upnp"
+	"github.com/esoutham1/go-sonos/ssdp"
+	"github.com/esoutham1/go-sonos/upnp"
 	_ "log"
 )
 
