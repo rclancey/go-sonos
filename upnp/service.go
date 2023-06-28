@@ -244,6 +244,8 @@ type Service struct {
 	described      bool
 	stateTable     []*upnpStateVariable
 	actionList     []*upnpAction
+	ssid           string        // save ssid for re-subscribe/unsubscribe
+	timeout        time.Duration // save timeout for re-subscribe
 }
 
 func (this *Service) Actions() (actions []string) {
