@@ -34,7 +34,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -273,13 +273,13 @@ func (this *upnpDefaultReactor) unpack(sid string, doc *upnpEvent_XML) {
 
 func (this *upnpDefaultReactor) handle(request *http.Request) {
 	defer request.Body.Close()
-	if body, err := ioutil.ReadAll(request.Body); nil != err {
+	if body, err := io.ReadAll(request.Body); nil != err {
 		panic(err)
 	} else {
 		sid_key := http.CanonicalHeaderKey("sid")
 		var sid string
 		if sid_list, has := request.Header[sid_key]; has {
-			//log.Println("event xml:", string(body))
+			//DBG: log.Println("event xml:", string(body))
 			sid = sid_list[0]
 			doc := &upnpEvent_XML{}
 			xml.Unmarshal(body, doc)

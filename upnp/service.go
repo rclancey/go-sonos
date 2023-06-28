@@ -34,7 +34,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -222,6 +222,13 @@ func (this *upnpDescribeServiceJob) UnpackActionList(act_list *upnpActionList_XM
 	return
 }
 
+func (this *Service) GetUdn() string {
+	return this.udn
+}
+func (this *Service) GetStruct() Service {
+	return *this
+}
+
 type Service struct {
 	deviceURI      string
 	deviceType     string
@@ -262,7 +269,7 @@ func (this *upnpDescribeServiceJob) Unpack() {
 
 func (this *upnpDescribeServiceJob) Parse() {
 	defer this.response.Body.Close()
-	if body, err := ioutil.ReadAll(this.response.Body); nil == err {
+	if body, err := io.ReadAll(this.response.Body); nil == err {
 		xml.Unmarshal(body, &this.doc)
 		this.Unpack()
 		this.result <- this.svc

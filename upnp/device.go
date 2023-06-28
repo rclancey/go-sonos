@@ -35,7 +35,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/esoutham1/go-sonos/ssdp"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -202,7 +202,7 @@ func (this *upnpDescribeDeviceJob) Unpack() (svc_list []*Service) {
 
 func (this *upnpDescribeDeviceJob) Parse() {
 	defer this.response.Body.Close()
-	if body, err := ioutil.ReadAll(this.response.Body); nil == err {
+	if body, err := io.ReadAll(this.response.Body); nil == err {
 		xml.Unmarshal(body, &this.doc)
 		this.result <- this.Unpack()
 	} else {

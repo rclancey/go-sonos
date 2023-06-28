@@ -31,6 +31,7 @@ import (
 	"github.com/esoutham1/go-sonos"
 	"github.com/esoutham1/go-sonos/ssdp"
 	"log"
+	"runtime"
 )
 
 const (
@@ -40,9 +41,14 @@ const (
 // This code locates a content directory device on the network
 func main() {
 	log.Print("go-sonos example discovery\n")
+	ethernetInterfaceName := "eth0"
+	goos := runtime.GOOS
+	if goos == "darwin" {
+		ethernetInterfaceName = "en0" //first ethernet adapter on MacOS
+	}
 
 	mgr := ssdp.MakeManager()
-	mgr.Discover("en0", "11209", false)
+	mgr.Discover(ethernetInterfaceName, "11209", false)
 	qry := ssdp.ServiceQueryTerms{
 		ssdp.ServiceKey("schemas-upnp-org-ContentDirectory"): -1,
 	}
