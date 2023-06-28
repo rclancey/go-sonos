@@ -31,8 +31,8 @@
 package config_test
 
 import (
-	"github.com/rclancey/go-sonos"
-	"github.com/rclancey/go-sonos/config"
+	"github.com/esoutham1/go-sonos"
+	"github.com/esoutham1/go-sonos/config"
 	"log"
 	"os"
 	"testing"

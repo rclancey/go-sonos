@@ -28,20 +28,18 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-//
 // A client to demonstrate controlling Sonos from the command line.
 //
 // cscl := (c)ontrol (s)onos from the (c)ommand (l)ine
-//
 package main
 
 import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/rclancey/go-sonos"
-	"github.com/rclancey/go-sonos/config"
-	"github.com/rclancey/go-sonos/ssdp"
+	"github.com/esoutham1/go-sonos"
+	"github.com/esoutham1/go-sonos/config"
+	"github.com/esoutham1/go-sonos/ssdp"
 	"log"
 	"os"
 	"path"

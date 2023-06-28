@@ -34,7 +34,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/rclancey/go-sonos/ssdp"
+	"github.com/esoutham1/go-sonos/ssdp"
 	"io/ioutil"
 	"log"
 	"net/http"

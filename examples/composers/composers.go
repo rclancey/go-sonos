@@ -1,4 +1,3 @@
-//
 // go-sonos
 // ========
 //
@@ -9,9 +8,9 @@
 // modification, are permitted provided that the following conditions
 // are met:
 //
-//   * Redistributions of source code must retain the above copyright notice,
+//   - Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
-//   * Redistributions in binary form must reproduce the above copyright
+//   - Redistributions in binary form must reproduce the above copyright
 //     notice, this list of conditions and the following disclaimer in the
 //     documentation and/or other materials provided with the distribution.
 //
@@ -26,12 +25,11 @@
 // LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
 package main
 
 import (
-	"github.com/rclancey/go-sonos"
-	"github.com/rclancey/go-sonos/ssdp"
+	"github.com/esoutham1/go-sonos"
+	"github.com/esoutham1/go-sonos/ssdp"
 	"log"
 )
 

@@ -28,21 +28,19 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-//
 // A server to demonstrate controlling Sonos from a web browser.
 //
 // csweb := (c)ontrol (s)onos from a (web) browser
-//
 package main
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/rclancey/go-sonos"
-	"github.com/rclancey/go-sonos/config"
-	"github.com/rclancey/go-sonos/model"
-	"github.com/rclancey/go-sonos/upnp"
+	"github.com/esoutham1/go-sonos"
+	"github.com/esoutham1/go-sonos/config"
+	"github.com/esoutham1/go-sonos/model"
+	"github.com/esoutham1/go-sonos/upnp"
 	"log"
 	"net/http"
 	"os"
@@ -100,9 +98,7 @@ func reply(w http.ResponseWriter, err error, value interface{}) {
 
 type handlerFunc func(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error
 
-//
 // get-position-info
-//
 func handle_GetPositionInfo(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if info, err := s.GetPositionInfo(0); nil != err {
 		return err
@@ -112,9 +108,7 @@ func handle_GetPositionInfo(s *sonos.Sonos, w http.ResponseWriter, r *http.Reque
 	return nil
 }
 
-//
 // get-transport-info
-//
 func handle_GetTransportInfo(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if info, err := s.GetTransportInfo(0); nil != err {
 		return err
@@ -124,9 +118,7 @@ func handle_GetTransportInfo(s *sonos.Sonos, w http.ResponseWriter, r *http.Requ
 	return nil
 }
 
-//
 // get-volume
-//
 func handle_GetVolume(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if volume, err := s.GetVolume(0, upnp.Channel_Master); nil != err {
 		return err
@@ -136,9 +128,7 @@ func handle_GetVolume(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) er
 	return nil
 }
 
-//
 // next
-//
 func handle_Next(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if err := s.Next(0); nil != err {
 		return err
@@ -147,9 +137,7 @@ func handle_Next(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-//
 // next-section
-//
 func handle_NextSection(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if err := s.NextSection(0); nil != err {
 		return err
@@ -158,9 +146,7 @@ func handle_NextSection(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) 
 	return nil
 }
 
-//
 // pause
-//
 func handle_Pause(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if err := s.Pause(0); nil != err {
 		return err
@@ -169,9 +155,7 @@ func handle_Pause(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error 
 	return nil
 }
 
-//
 // play
-//
 func handle_Play(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if err := s.Play(0, "1"); nil != err {
 		return err
@@ -180,9 +164,7 @@ func handle_Play(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-//
 // previous
-//
 func handle_Previous(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if err := s.Previous(0); nil != err {
 		return err
@@ -191,9 +173,7 @@ func handle_Previous(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) err
 	return nil
 }
 
-//
 // previous-section
-//
 func handle_PreviousSection(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if err := s.PreviousSection(0); nil != err {
 		return err
@@ -202,9 +182,7 @@ func handle_PreviousSection(s *sonos.Sonos, w http.ResponseWriter, r *http.Reque
 	return nil
 }
 
-//
 // remove-track-from-queue
-//
 func handle_RemoveTrackFromQueue(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	track_s := r.FormValue("track")
 	if err := s.RemoveTrackFromQueue(0, fmt.Sprintf("Q:0/%s", track_s), 0); nil != err {
@@ -214,9 +192,7 @@ func handle_RemoveTrackFromQueue(s *sonos.Sonos, w http.ResponseWriter, r *http.
 	return nil
 }
 
-//
 // seek
-//
 func handle_Seek(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	unit := r.FormValue("unit")
 	target := r.FormValue("target")
@@ -227,9 +203,7 @@ func handle_Seek(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-//
 // set-volume
-//
 func handle_SetVolume(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	volume_s := r.FormValue("value")
 	if volume, err := strconv.ParseInt(volume_s, 10, 16); nil != err {
@@ -243,9 +217,7 @@ func handle_SetVolume(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) er
 	return nil
 }
 
-//
 // stop
-//
 func handle_Stop(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if err := s.Stop(0); nil != err {
 		return err
@@ -265,9 +237,9 @@ var controlHandlerMap = map[string]handlerFunc{
 	"previous":                handle_Previous,
 	"previous-section":        handle_PreviousSection,
 	"remove-track-from-queue": handle_RemoveTrackFromQueue,
-	"seek":       handle_Seek,
-	"set-volume": handle_SetVolume,
-	"stop":       handle_Stop,
+	"seek":                    handle_Seek,
+	"set-volume":              handle_SetVolume,
+	"stop":                    handle_Stop,
 }
 
 func handleControl(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) {
@@ -282,9 +254,7 @@ func handleControl(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//
 // get-album-tracks
-//
 func handle_GetAlbumTracks(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if tracks, err := s.GetAlbumTracks(r.FormValue("album")); nil != err {
 		return err
@@ -294,9 +264,7 @@ func handle_GetAlbumTracks(s *sonos.Sonos, w http.ResponseWriter, r *http.Reques
 	return nil
 }
 
-//
 // get-all-genres
-//
 func handle_GetAllGenres(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if list, err := s.GetAllGenres(); nil != err {
 		return err
@@ -306,9 +274,7 @@ func handle_GetAllGenres(s *sonos.Sonos, w http.ResponseWriter, r *http.Request)
 	return nil
 }
 
-//
 // get-artist-albums
-//
 func handle_GetArtistAlbums(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if list, err := s.GetArtistAlbums(r.FormValue("artist")); nil != err {
 		return err
@@ -318,9 +284,7 @@ func handle_GetArtistAlbums(s *sonos.Sonos, w http.ResponseWriter, r *http.Reque
 	return nil
 }
 
-//
 // get-direct-children
-//
 func handle_GetDirectChildren(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if list, err := s.GetDirectChildren(r.FormValue("root")); nil != err {
 		return err
@@ -330,9 +294,7 @@ func handle_GetDirectChildren(s *sonos.Sonos, w http.ResponseWriter, r *http.Req
 	return nil
 }
 
-//
 // get-genre-artists
-//
 func handle_GetGenreArtists(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if artists, err := s.GetGenreArtists(r.FormValue("genre")); nil != err {
 		return err
@@ -342,9 +304,7 @@ func handle_GetGenreArtists(s *sonos.Sonos, w http.ResponseWriter, r *http.Reque
 	return nil
 }
 
-//
 // get-queue-contents
-//
 func handle_GetQueueContents(s *sonos.Sonos, w http.ResponseWriter, r *http.Request) error {
 	if queue, err := s.GetQueueContents(); nil != err {
 		return err
