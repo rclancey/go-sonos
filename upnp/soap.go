@@ -34,7 +34,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	_ "log"
 	"net/http"
 	_ "os"
@@ -172,7 +172,7 @@ func (this *Service) Call(action string, args Args) (response string) {
 	} else {
 		defer resp.Body.Close()
 		var body []byte
-		if body, err = ioutil.ReadAll(resp.Body); nil != err {
+		if body, err = io.ReadAll(resp.Body); nil != err {
 			panic(err)
 		}
 		doc := soapResponseEnvelope{}

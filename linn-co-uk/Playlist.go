@@ -32,7 +32,7 @@ package linn
 
 import (
 	"encoding/xml"
-	"github.com/rclancey/go-sonos/upnp"
+	"github.com/esoutham1/go-sonos/upnp"
 )
 
 type Playlist struct {

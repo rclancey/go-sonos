@@ -93,6 +93,19 @@ type RenderingControl struct {
 }
 
 func (this *RenderingControl) BeginSet(svc *Service, channel chan Event) {
+	// Clear LastChange or else events keep appending to these fields and leaking memory
+	this.LastChange.InstanceID.Volume = nil
+	this.LastChange.InstanceID.Mute = nil
+	this.LastChange.InstanceID.Bass = nil
+	this.LastChange.InstanceID.Treble = nil
+	this.LastChange.InstanceID.Loudness = nil
+	this.LastChange.InstanceID.OutputFixed = nil
+	this.LastChange.InstanceID.HeadphoneConnected = nil
+	this.LastChange.InstanceID.SpeakerSize = nil
+	this.LastChange.InstanceID.SubGain = nil
+	this.LastChange.InstanceID.SubCrossover = nil
+	this.LastChange.InstanceID.SubPolarity = nil
+	this.LastChange.InstanceID.SubEnabled = nil
 }
 
 type renderingControlUpdate_XML struct {

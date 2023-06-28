@@ -217,9 +217,9 @@ func (this *ZoneGroupTopology) RegisterMobileDevice(deviceName, deviceUDN, devic
 }
 
 type ZoneGroupAttributes struct {
-	CurrentZoneGroupName   string
-	CurrentZoneGroupID     string
-	ZonePlayerUUIDsInGroup string
+	CurrentZoneGroupName          string
+	CurrentZoneGroupID            string
+	CurrentZonePlayerUUIDsInGroup string
 }
 
 func (this *ZoneGroupTopology) GetZoneGroupAttributes() (*ZoneGroupAttributes, error) {

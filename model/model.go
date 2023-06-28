@@ -28,13 +28,11 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-//
 // A collection of object classes used in message passing in go-sonos.
-//
 package model
 
 import (
-	"github.com/rclancey/go-sonos/didl"
+	"github.com/esoutham1/go-sonos/didl"
 	_ "log"
 )
 
@@ -91,11 +89,9 @@ type Object interface {
 	IsContainer() bool
 }
 
-//
 // A flattened structure of exported fields to allow Objects to be passed
 // via XML, JSON, or other encoding relying on reflection.  Fields in this
 // struct mirror the usage of like-named methods in the Object interface.
-//
 type ObjectMessage struct {
 	ID          string
 	ParentID    string

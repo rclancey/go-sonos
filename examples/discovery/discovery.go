@@ -1,4 +1,3 @@
-//
 // go-sonos
 // ========
 //
@@ -9,9 +8,9 @@
 // modification, are permitted provided that the following conditions
 // are met:
 //
-//   * Redistributions of source code must retain the above copyright notice,
+//   - Redistributions of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
-//   * Redistributions in binary form must reproduce the above copyright
+//   - Redistributions in binary form must reproduce the above copyright
 //     notice, this list of conditions and the following disclaimer in the
 //     documentation and/or other materials provided with the distribution.
 //
@@ -26,26 +25,30 @@
 // LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
 package main
 
 import (
-	"github.com/rclancey/go-sonos/ssdp"
+	"github.com/esoutham1/go-sonos/ssdp"
 	"log"
+	"runtime"
 )
 
 // This code identifies UPnP devices on the netork that support the
 // MusicServices API.
 func main() {
 	log.Print("go-sonos example discovery\n")
-
+	ethernetInterfaceName := "eth0"
+	goos := runtime.GOOS
+	if goos == "darwin" {
+		ethernetInterfaceName = "en0" //first ethernet adapter on MacOS
+	}
 	mgr := ssdp.MakeManager()
 
 	// Discover()
-	//  eth0 := Network device to query for UPnP devices
-	// 11209 := Free local port for discovery replies
+	//  eth0 or en0 := Network interface to query for UPnP devices
+	// 0 := Free random assigned local port for discovery replies
 	// false := Do not subscribe for asynchronous updates
-	mgr.Discover("eth0", "11209", false)
+	mgr.Discover(ethernetInterfaceName, "0", false)
 
 	// SericeQueryTerms
 	// A map of service keys to minimum required version

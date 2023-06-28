@@ -31,31 +31,39 @@
 package sonos_test
 
 import (
-	"github.com/rclancey/go-sonos"
-	"github.com/rclancey/go-sonos/config"
-	"github.com/rclancey/go-sonos/didl"
-	"github.com/rclancey/go-sonos/ssdp"
-	"github.com/rclancey/go-sonos/upnp"
+	"github.com/esoutham1/go-sonos"
+	"github.com/esoutham1/go-sonos/config"
+	"github.com/esoutham1/go-sonos/didl"
+	"github.com/esoutham1/go-sonos/ssdp"
+	"github.com/esoutham1/go-sonos/upnp"
 	"log"
 	"strings"
 	"testing"
 )
 
 const (
-	TEST_CONFIG        = "/home/ianr/.go-sonos"
+	TEST_CONFIG        = "dot_go-sonos"
 	TEST_SONOS         = "kitchen"
 	TEST_RECIVA        = "basement"
-	TEST_DISCOVER_PORT = "13104"
-	TEST_EVENTING_PORT = "13106"
-	TEST_NETWORK       = "eth0"
+	TEST_DISCOVER_PORT = "0"     // "0" for auto-assigned port
+	TEST_EVENTING_PORT = "13106" // Eventing requires a fixed port
+	TEST_NETWORK       = "en0"	// "eth0" for linux, "en0" for mac
+	location           = "http://192.168.1.81:1400/xml/device_description.xml"
+	uuid               = "RINCON_000E58741A8401400"
 )
 
 var testSonos *sonos.Sonos
 
 func initTestSonos(flags int) {
 	log.SetFlags(log.Ltime | log.Lshortfile)
+
+	if err := os.RemoveAll(TEST_CONFIG); nil != err {
+		panic(err)
+	}
 	c := config.MakeConfig(TEST_CONFIG)
 	c.Init()
+	c.AddBookmark(uuid, sonos.SONOS, "0.3.0", location, uuid)
+	//c.Save()
 	if dev := c.Lookup(TEST_SONOS); nil != dev {
 		testSonos = sonos.Connect(dev, nil, flags)
 	} else {
@@ -90,9 +98,7 @@ func getTestReciva(flags int) *sonos.Reciva {
 	return testReciva
 }
 
-//
 // AlarmClock
-//
 func TestAlarmClock(t *testing.T) {
 	s := getTestSonos(sonos.SVC_ALARM_CLOCK)
 
@@ -148,9 +154,7 @@ func TestAlarmClock(t *testing.T) {
 	}
 }
 
-//
 // AVTransport
-//
 func TestAVTransport(t *testing.T) {
 	s := getTestSonos(sonos.SVC_AV_TRANSPORT)
 
@@ -239,9 +243,7 @@ func TestAVTransport(t *testing.T) {
 	*/
 }
 
-//
 // ConnectiionManager
-//
 func TestConnectionManager(t *testing.T) {
 	s := getTestSonos(sonos.SVC_CONNECTION_MANAGER)
 
@@ -258,10 +260,8 @@ func TestConnectionManager(t *testing.T) {
 	}
 }
 
-//
 // ContentDirectory
 // @see also TestBrowse
-//
 func TestContentDirectory(t *testing.T) {
 	s := getTestSonos(sonos.SVC_CONTENT_DIRECTORY)
 
@@ -280,7 +280,7 @@ func TestContentDirectory(t *testing.T) {
 	if id, err := s.GetSystemUpdateID(); nil != err {
 		t.Fatal(err)
 	} else {
-		t.Logf("GetSystemUpdateID() -> \"%s\"", id)
+		t.Logf("GetSystemUpdateID() -> \"%d\"", id)
 	}
 
 	if albumArtistDisplayOption, err := s.GetAlbumArtistDisplayOption(); nil != err {
@@ -308,9 +308,7 @@ func TestContentDirectory(t *testing.T) {
 	}
 }
 
-//
 // DeviceProperties
-//
 func TestDeviceProperties(t *testing.T) {
 	s := getTestSonos(sonos.SVC_DEVICE_PROPERTIES)
 
@@ -377,16 +375,12 @@ func TestDeviceProperties(t *testing.T) {
 	}
 }
 
-//
 // GroupManagement
-//
 func TestGroupManagement(t *testing.T) {
 	// TODO
 }
 
-//
 // MusicServices
-//
 func TestMusicServices(t *testing.T) {
 	s := getTestSonos(sonos.SVC_MUSIC_SERVICES)
 
@@ -409,9 +403,7 @@ func TestMusicServices(t *testing.T) {
 	}
 }
 
-//
 // RenderingControl
-//
 func TestRenderingControl(t *testing.T) {
 	s := getTestSonos(sonos.SVC_RENDERING_CONTROL)
 
@@ -489,16 +481,12 @@ func TestRenderingControl(t *testing.T) {
 	}
 }
 
-//
 // SystemProperties
-//
 func TestSystemProperties(t *testing.T) {
 	// TODO
 }
 
-//
 // ZoneGroupTopology
-//
 func TestZoneGroupTopology(t *testing.T) {
 	s := getTestSonos(sonos.SVC_ZONE_GROUP_TOPOLOGY)
 
@@ -514,17 +502,13 @@ func TestZoneGroupTopology(t *testing.T) {
 	}
 }
 
-//
 // Coverage
-//
 func TestCoverage(t *testing.T) {
 	s := getTestSonos(sonos.SVC_ALL)
 	sonos.Coverage(s)
 }
 
-//
 // Discovery
-//
 func _TestDiscovery(t *testing.T) {
 	if mgr, err := sonos.Discover(TEST_NETWORK, TEST_DISCOVER_PORT); nil != err {
 		panic(err)
@@ -539,9 +523,7 @@ func _TestDiscovery(t *testing.T) {
 	}
 }
 
-//
 // Browse
-//
 func TestBrowse(t *testing.T) {
 	s := getTestSonos(sonos.SVC_CONTENT_DIRECTORY)
 
@@ -1229,9 +1211,9 @@ func TestRecivaGetTimeZone(t *testing.T) {
 	}
 }
 
-////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////
 // Issue #4
-////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////
 func read_events(c chan upnp.Event) {
 	for {
 		select {
@@ -1243,12 +1225,12 @@ func read_events(c chan upnp.Event) {
 func TestIssue_4(t *testing.T) {
 	log.SetFlags(log.Ltime | log.Lshortfile)
 	log.Printf("Discovery: Starting")
-	mgr, err := sonos.Discover("eth0", "13104")
+	mgr, err := sonos.Discover(TEST_NETWORK, TEST_DISCOVER_PORT)
 	if nil != err {
 		panic(err)
 	}
 	log.Printf("Discovery: Done; Reactor: Starting")
-	reactor := sonos.MakeReactor("eth0", "13106")
+	reactor := sonos.MakeReactor(TEST_NETWORK, TEST_EVENTING_PORT)
 	go read_events(reactor.Channel()) ///// <------------
 	log.Printf("Reactor: Running; Query: Starting")
 	qry := ssdp.ServiceQueryTerms{

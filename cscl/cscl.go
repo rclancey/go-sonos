@@ -28,20 +28,18 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-//
 // A client to demonstrate controlling Sonos from the command line.
 //
 // cscl := (c)ontrol (s)onos from the (c)ommand (l)ine
-//
 package main
 
 import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/rclancey/go-sonos"
-	"github.com/rclancey/go-sonos/config"
-	"github.com/rclancey/go-sonos/ssdp"
+	"github.com/esoutham1/go-sonos"
+	"github.com/esoutham1/go-sonos/config"
+	"github.com/esoutham1/go-sonos/ssdp"
 	"log"
 	"os"
 	"path"
@@ -171,7 +169,7 @@ type Args struct {
 }
 
 func Usage() {
-	fmt.Fprintf(os.Stderr, "usage: cscl [-S <uuid/alias>] [-C <configdir=~/.go-sonos/>] [-D <discovery device=eth0>]\n")
+	fmt.Fprintf(os.Stderr, "usage: cscl [-S <uuid/alias>] [-C <configdir=~/.go-sonos/>] [-D <discovery device=en0>]\n")
 	fmt.Fprintf(os.Stderr, "            [-P <discovery port=13104>]\n")
 	fmt.Fprintf(os.Stderr, "            [--help|--usage]\n")
 	fmt.Fprintf(os.Stderr, "            <command> [args ...]\n\n")
@@ -189,8 +187,8 @@ func main() {
 	args := Args{}
 	args.alias = flag.String("S", "", "device alias name")
 	args.configDir = flag.String("C", "", "go-sonos configuration directory")
-	args.discoveryDevice = flag.String("D", "eth0", "discovery device")
-	args.discoveryPort = flag.Int("P", 13104, "discovery response port")
+	args.discoveryDevice = flag.String("D", "en0", "discovery device")
+	args.discoveryPort = flag.Int("P", 0, "discovery response port")
 	args.help = flag.Bool("help", false, "show the usage message")
 	args.usage = flag.Bool("usage", false, "show the usage message")
 	flag.Usage = Usage
