@@ -49,11 +49,11 @@ import (
 )
 
 const (
-	CSWEB_CONFIG        = "/home/ianr/.go-sonos"
+	CSWEB_CONFIG        = "/dot_go-sonos"
 	CSWEB_DEVICE        = "kitchen"
-	CSWEB_DISCOVER_PORT = "13104"
-	CSWEB_EVENTING_PORT = "13105"
-	CSWEB_NETWORK       = "eth0"
+	CSWEB_DISCOVER_PORT = "0"
+	CSWEB_EVENTING_PORT = "13100"
+	CSWEB_NETWORK       = "en0"
 	CSWEB_HTTP_PORT     = 8080
 )
 

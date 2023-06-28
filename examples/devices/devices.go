@@ -30,14 +30,20 @@ package main
 import (
 	"github.com/esoutham1/go-sonos/ssdp"
 	"log"
+	"runtime"
 )
 
 // This code identifies lists all UPnP devices discovered
 func main() {
 	log.Print("go-sonos example discovery\n")
+	ethernetInterfaceName := "eth0"
+	goos := runtime.GOOS
+	if goos == "darwin" {
+		ethernetInterfaceName = "en0" //first ethernet adapter on MacOS
+	}
 
 	mgr := ssdp.MakeManager()
-	mgr.Discover("eth0", "11209", false)
+	mgr.Discover(ethernetInterfaceName, "0", false)
 	i := 0
 	dev_map := mgr.Devices()
 	for _, dev := range dev_map {

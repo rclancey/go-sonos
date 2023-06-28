@@ -42,20 +42,28 @@ import (
 )
 
 const (
-	TEST_CONFIG        = "/home/ianr/.go-sonos"
+	TEST_CONFIG        = "dot_go-sonos"
 	TEST_SONOS         = "kitchen"
 	TEST_RECIVA        = "basement"
-	TEST_DISCOVER_PORT = "13104"
-	TEST_EVENTING_PORT = "13106"
-	TEST_NETWORK       = "eth0"
+	TEST_DISCOVER_PORT = "0"     // "0" for auto-assigned port
+	TEST_EVENTING_PORT = "13106" // Eventing requires a fixed port
+	TEST_NETWORK       = "en0"	// "eth0" for linux, "en0" for mac
+	location           = "http://192.168.1.81:1400/xml/device_description.xml"
+	uuid               = "RINCON_000E58741A8401400"
 )
 
 var testSonos *sonos.Sonos
 
 func initTestSonos(flags int) {
 	log.SetFlags(log.Ltime | log.Lshortfile)
+
+	if err := os.RemoveAll(TEST_CONFIG); nil != err {
+		panic(err)
+	}
 	c := config.MakeConfig(TEST_CONFIG)
 	c.Init()
+	c.AddBookmark(uuid, sonos.SONOS, "0.3.0", location, uuid)
+	//c.Save()
 	if dev := c.Lookup(TEST_SONOS); nil != dev {
 		testSonos = sonos.Connect(dev, nil, flags)
 	} else {
@@ -272,7 +280,7 @@ func TestContentDirectory(t *testing.T) {
 	if id, err := s.GetSystemUpdateID(); nil != err {
 		t.Fatal(err)
 	} else {
-		t.Logf("GetSystemUpdateID() -> \"%s\"", id)
+		t.Logf("GetSystemUpdateID() -> \"%d\"", id)
 	}
 
 	if albumArtistDisplayOption, err := s.GetAlbumArtistDisplayOption(); nil != err {
@@ -1217,12 +1225,12 @@ func read_events(c chan upnp.Event) {
 func TestIssue_4(t *testing.T) {
 	log.SetFlags(log.Ltime | log.Lshortfile)
 	log.Printf("Discovery: Starting")
-	mgr, err := sonos.Discover("eth0", "13104")
+	mgr, err := sonos.Discover(TEST_NETWORK, TEST_DISCOVER_PORT)
 	if nil != err {
 		panic(err)
 	}
 	log.Printf("Discovery: Done; Reactor: Starting")
-	reactor := sonos.MakeReactor("eth0", "13106")
+	reactor := sonos.MakeReactor(TEST_NETWORK, TEST_EVENTING_PORT)
 	go read_events(reactor.Channel()) ///// <------------
 	log.Printf("Reactor: Running; Query: Starting")
 	qry := ssdp.ServiceQueryTerms{

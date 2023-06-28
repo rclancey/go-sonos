@@ -31,6 +31,7 @@ import (
 	"github.com/esoutham1/go-sonos"
 	"github.com/esoutham1/go-sonos/ssdp"
 	"log"
+	"runtime"
 )
 
 const (
@@ -41,8 +42,13 @@ const (
 func main() {
 	log.Print("go-sonos example discovery\n")
 
+	ethernetInterfaceName := "eth0"
+	goos := runtime.GOOS
+	if goos == "darwin" {
+		ethernetInterfaceName = "en0" //first ethernet adapter on MacOS
+	}
 	mgr := ssdp.MakeManager()
-	mgr.Discover("eth0", "11209", false)
+	mgr.Discover(ethernetInterfaceName, "0", false)
 	qry := ssdp.ServiceQueryTerms{
 		ssdp.ServiceKey("schemas-upnp-org-ContentDirectory"): -1,
 	}

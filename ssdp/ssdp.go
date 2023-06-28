@@ -32,7 +32,7 @@
 // A client implementation of the SSDP protocol.
 //
 //	mgr := ssdp.MakeManager()
-//	mgr.Discover("eth0", "13104", false)
+//	mgr.Discover("en0", "13104", false)
 //	qry := ssdp.ServiceQueryTerms{
 //		ssdp.ServiceKey("schemas-upnp-org-MusicServices"): -1,
 //	}
@@ -271,25 +271,25 @@ type ssdpNotifyQueue chan *ssdpNotifyMessage
 
 type ssdpResponseMessage struct {
 	ssdpServerDescription
-	_01_nls            string
-	al                 string
-	cache_control      string
-	date               string
-	ext                string
-	location           Location
-	opt                string
-	st                 string
-	usn                string
-	x_rincon_bootseq   string
-	x_rincon_household string
-	x_rincon_variant   string
-	x_rincon_wifimode  string
-	x_user_agent       string
-	content_length     string
-	bootid_upnp_org    string
-	configid_upnp_org  string
+	_01_nls                      string
+	al                           string
+	cache_control                string
+	date                         string
+	ext                          string
+	location                     Location
+	opt                          string
+	st                           string
+	usn                          string
+	x_rincon_bootseq             string
+	x_rincon_household           string
+	x_rincon_variant             string
+	x_rincon_wifimode            string
+	x_user_agent                 string
+	content_length               string
+	bootid_upnp_org              string
+	configid_upnp_org            string
 	household_smartspeaker_audio string
-	x_av_server_info   string
+	x_av_server_info             string
 }
 
 type ssdpResponseQueue chan *ssdpResponseMessage
@@ -532,7 +532,7 @@ func (this *ssdpDefaultManager) ssdpHandleNotify(raw *ssdpRawMessage) *ssdpNotif
 		case "01-Nls":
 			msg._01_nls = value
 		default:
-			log.Printf("No support for field `%s' (value `%s')", key, value)
+			log.Printf("No ssdpNotify support for field `%s' (value `%s')", key, value)
 		}
 	}
 	return msg
@@ -549,6 +549,8 @@ func (this *ssdpDefaultManager) ssdpHandleResponse(raw *ssdpRawMessage) *ssdpRes
 		case "Server":
 			m := ssdpServerStringRegexp.FindStringSubmatch(value)
 			if 0 < len(m) {
+				//DBG: log.Printf("Server:%#v", m)
+
 				msg.os = m[1]
 				msg.os_version = m[3]
 				msg.upnp_version = m[5]
@@ -591,9 +593,24 @@ func (this *ssdpDefaultManager) ssdpHandleResponse(raw *ssdpRawMessage) *ssdpRes
 			msg.household_smartspeaker_audio = value
 		case "X-Av-Server-Info":
 			msg.x_av_server_info = value
+
+			//list of KNOWN unsupported messages
+		case "Securelocation.upnp.org":
+		case "X-Accepts-Registration":
+		case "X-Sonos-Hhsecurelocation":
+		case "X-Friendly-Name":
+		case "X-Mdx-Caps":
+		case "X-Mdx-Link":
+		case "X-Mdx-Registered":
+		case "X-Mdx-Remote-Login-Requested-By-Witcher":
+		case "X-Mdx-Remote-Login-Supported":
+		case "X-Msl":
+		case "X-Rincon-Proxy":
+			//DBG: log.Printf("No ssdpResponse support for %s", key)
+
 		default:
 			log.Printf("No support for field `%s' (value `%s')", key, value)
-			log.Printf("%v", raw)
+			//DBG: log.Printf("%v", raw)
 		}
 	}
 	return msg
@@ -637,7 +654,7 @@ func (this *ssdpDefaultManager) ssdpUnicastDiscoverImpl(ifi *net.Interface, port
 	for _, addr := range addrs {
 		if nil != addr.(*net.IPNet).IP.DefaultMask() {
 			lip = addr.(*net.IPNet).IP
-			break;
+			break
 		}
 	}
 	laddr, err := net.ResolveUDPAddr(ssdpBroadcastVersion, net.JoinHostPort(lip.String(), port))

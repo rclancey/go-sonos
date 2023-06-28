@@ -42,7 +42,7 @@ func main() {
 	log.Print("go-sonos example discovery\n")
 
 	mgr := ssdp.MakeManager()
-	mgr.Discover("eth0", "11209", false)
+	mgr.Discover("en0", "11209", false)
 	qry := ssdp.ServiceQueryTerms{
 		ssdp.ServiceKey("schemas-upnp-org-ContentDirectory"): -1,
 	}

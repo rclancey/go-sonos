@@ -30,20 +30,25 @@ package main
 import (
 	"github.com/esoutham1/go-sonos/ssdp"
 	"log"
+	"runtime"
 )
 
 // This code identifies UPnP devices on the netork that support the
 // MusicServices API.
 func main() {
 	log.Print("go-sonos example discovery\n")
-
+	ethernetInterfaceName := "eth0"
+	goos := runtime.GOOS
+	if goos == "darwin" {
+		ethernetInterfaceName = "en0" //first ethernet adapter on MacOS
+	}
 	mgr := ssdp.MakeManager()
 
 	// Discover()
-	//  eth0 := Network device to query for UPnP devices
-	// 11209 := Free local port for discovery replies
+	//  eth0 or en0 := Network interface to query for UPnP devices
+	// 0 := Free random assigned local port for discovery replies
 	// false := Do not subscribe for asynchronous updates
-	mgr.Discover("eth0", "11209", false)
+	mgr.Discover(ethernetInterfaceName, "0", false)
 
 	// SericeQueryTerms
 	// A map of service keys to minimum required version
